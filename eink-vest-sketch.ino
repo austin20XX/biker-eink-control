@@ -3,14 +3,19 @@
 #include "panels/ThinkInk_290_Tricolor_Z10.h"
 #include "Featherwing.h"
 
+#include <Button.h>
 #include <Adafruit_ImageReader_EPD.h>
 #include <SdFat.h>
+
 
 
 // 2.9" Tricolor IL0373 chipset
 ThinkInk_290_Tricolor_Z10 display(EPD_DC, EPD_RESET, EPD_CS, SRAM_CS,
 EPD_BUSY, EPD_SPI);
 
+Button aButton(EPD_GPIO_A);
+Button bButton(EPD_GPIO_B);
+Button cButton(EPD_GPIO_C); 
 int aState, bState, cState = 0;
 
 SdFat SD;
@@ -24,10 +29,10 @@ int32_t              width  = 0, // BMP image dimensions
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  aButton.begin();
+  bButton.begin();
+  cButton.begin();
 
-  pinMode(EPD_GPIO_A, INPUT_PULLUP);
-  pinMode(EPD_GPIO_B, INPUT_PULLUP);
-    pinMode(EPD_GPIO_C, INPUT_PULLUP);
   Serial.println("Pin Init Complete");
 
   //TRICOLOR is the default here but being explicit
@@ -44,9 +49,9 @@ void setup() {
 
   ImageReturnCode stat; // Status from image-reading functions
 
-    if(!SD.begin(SD_CS, SD_SCK_MHZ(10))) { // Breakouts require 10 MHz limit due to longer wires
+    if(!SD.begin(EPD_CS, SD_SCK_MHZ(10))) { // Breakouts require 10 MHz limit due to longer wires
     Serial.println(F("SD begin() failed"));
-    for(;;); // Fatal error, do not continue
+    // for(;;); // Fatal error, do not continue
     }
 
   Serial.println(F("OK!"));
@@ -86,27 +91,21 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  aState = digitalRead(EPD_GPIO_A);
-  bState = digitalRead(EPD_GPIO_B);
-  cState = digitalRead(EPD_GPIO_C);
   //It is pulled up HIGH, so low indicates a press
-   if (aState == LOW) {
+   if (aButton.pressed()) {
     Serial.println("A");
     display.print("Austin Myers A");  
     display.display();
   }
-  else if (bState == LOW) {
+  else if (bButton.pressed()) {
     Serial.println("B");
     display.print("Austin Myers B");
     display.display();
   }
-  else if (cState == LOW) {
+  else if (cButton.pressed()) {
     Serial.println("C");
     // display.print("Austin Myers C");
     display.clearBuffer();
     display.display();
   }
-  //Slight delay for debouncing? Likely better ways... 
-  //DEBOUNCE LIBRARY! bounce2, button
-  delay(100);
 }
