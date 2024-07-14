@@ -4,6 +4,7 @@
 #define SRAM_CS 6
 #define EPD_RESET -1  // can set to -1 and share with microcontroller Reset!
 #define EPD_SPI &SPI // primary SPI
+#define EPD_SD_CS 5
 
 #define EPD_GPIO_A 2
 #define EPD_GPIO_B 3
